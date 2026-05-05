@@ -1,0 +1,254 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # Reverse Proxy + SSL (Traefik)
+  # ============================================================================
+  traefik:
+    image: traefik:v3.0
+    container_name: site42-traefik
+    command:
+      - "--api.insecure=false"
+      - "--api.dashboard=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.filename=/traefik.yml"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:admin@hub42.app}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/traefik.yml:ro
+      - ./traefik/acme.json:/acme.json
+    networks:
+      - site42-network
+    environment:
+      DOMAIN: ${DOMAIN:hub42.app}
+
+  # ============================================================================
+  # Database
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: site42-postgres
+    environment:
+      POSTGRES_DB: site42
+      POSTGRES_USER: ${DB_USER:site42_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:site42_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:site42_user} -d site42"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Cache
+  # ============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: site42-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Backend API
+  # ============================================================================
+  backend:
+    image: ghcr.io/${GITHUB_ORG:gryniv}/backend:latest
+    container_name: site42-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/site42
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:site42_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:site42_pass}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      JWT_SECRET: ${JWT_SECRET:change-me-in-production}
+      SENTRY_DSN: ${SENTRY_DSN:}
+      SENTRY_TRACES_RATE: ${SENTRY_TRACES_RATE:0.1}
+      MAIL_HOST: ${MAIL_HOST:localhost}
+      MAIL_PORT: ${MAIL_PORT:1025}
+      MAIL_FROM: ${MAIL_FROM:noreply@hub42.app}
+      APP_BASE_URL: ${APP_BASE_URL:https://crm.hub42.app}
+      PORTAL_BASE_URL: ${PORTAL_BASE_URL:https://portal.hub42.app}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/v3/api-docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.${DOMAIN:hub42.app}`)"
+      - "traefik.http.routers.backend.entrypoints=web,websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=8081"
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Frontend: CRM Portal
+  # ============================================================================
+  business-portal:
+    image: ghcr.io/${GITHUB_ORG:gryniv}/business-portal:latest
+    container_name: site42-business-portal
+    environment:
+      VITE_API_URL: https://api.${DOMAIN:hub42.app}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.business-portal.rule=Host(`crm.${DOMAIN:hub42.app}`)"
+      - "traefik.http.routers.business-portal.entrypoints=web,websecure"
+      - "traefik.http.routers.business-portal.tls.certresolver=letsencrypt"
+      - "traefik.http.services.business-portal.loadbalancer.server.port=80"
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Frontend: Admin Portal
+  # ============================================================================
+  admin-portal:
+    image: ghcr.io/${GITHUB_ORG:gryniv}/admin-portal:latest
+    container_name: site42-admin-portal
+    environment:
+      VITE_API_URL: https://api.${DOMAIN:hub42.app}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.admin-portal.rule=Host(`admin.${DOMAIN:hub42.app}`)"
+      - "traefik.http.routers.admin-portal.entrypoints=web,websecure"
+      - "traefik.http.routers.admin-portal.tls.certresolver=letsencrypt"
+      - "traefik.http.services.admin-portal.loadbalancer.server.port=80"
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Frontend: Customer Portal
+  # ============================================================================
+  customer-portal:
+    image: ghcr.io/${GITHUB_ORG:gryniv}/customer-portal:latest
+    container_name: site42-customer-portal
+    environment:
+      VITE_API_URL: https://api.${DOMAIN:hub42.app}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.customer-portal.rule=Host(`portal.${DOMAIN:hub42.app}`)"
+      - "traefik.http.routers.customer-portal.entrypoints=web,websecure"
+      - "traefik.http.routers.customer-portal.tls.certresolver=letsencrypt"
+      - "traefik.http.services.customer-portal.loadbalancer.server.port=80"
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Frontend: Scanner
+  # ============================================================================
+  scanner:
+    image: ghcr.io/${GITHUB_ORG:gryniv}/scanner:latest
+    container_name: site42-scanner
+    environment:
+      VITE_API_URL: https://api.${DOMAIN:hub42.app}
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.scanner.rule=Host(`scan.${DOMAIN:hub42.app}`)"
+      - "traefik.http.routers.scanner.entrypoints=web,websecure"
+      - "traefik.http.routers.scanner.tls.certresolver=letsencrypt"
+      - "traefik.http.services.scanner.loadbalancer.server.port=80"
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+  # ============================================================================
+  # Frontend: Landing
+  # ============================================================================
+  landing:
+    image: ghcr.io/${GITHUB_ORG:gryniv}/landing:latest
+    container_name: site42-landing
+    environment:
+      VITE_API_URL: https://api.${DOMAIN:hub42.app}
+      VITE_THEME: hybrid
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.landing.rule=Host(`${DOMAIN:hub42.app}`)"
+      - "traefik.http.routers.landing.entrypoints=web,websecure"
+      - "traefik.http.routers.landing.tls.certresolver=letsencrypt"
+      - "traefik.http.services.landing.loadbalancer.server.port=80"
+    networks:
+      - site42-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  site42-network:
+    driver: bridge

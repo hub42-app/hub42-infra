@@ -1,0 +1,54 @@
+# ============================================================================
+# Traefik Static Configuration
+# ============================================================================
+
+# Global options
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+# Entrypoints
+entryPoints:
+  web:
+    address: ":80"
+    # Redirect HTTP to HTTPS
+    http:
+      redirections:
+        entrypoint:
+          to: websecure
+          scheme: https
+
+  websecure:
+    address: ":443"
+
+# Providers
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+
+  file:
+    filename: /traefik.yml
+    watch: true
+
+# Certificate resolvers
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@hub42.app
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web
+
+# API & Dashboard (disabled for security)
+api:
+  insecure: false
+  dashboard: false
+
+# Logging
+log:
+  level: INFO
+  filePath: /var/log/traefik/traefik.log
+
+accessLog:
+  filePath: /var/log/traefik/access.log

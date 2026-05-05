@@ -1,0 +1,78 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy (all, backend, business-portal, admin-portal, customer-portal, scanner, landing)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - backend
+          - business-portal
+          - admin-portal
+          - customer-portal
+          - scanner
+          - landing
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            cd /opt/site42
+
+            # Load environment
+            if [ ! -f .env ]; then
+              echo "Error: .env not found at /opt/site42/.env"
+              exit 1
+            fi
+
+            # Pull latest images
+            echo "Pulling latest Docker images..."
+            docker-compose -f docker-compose.prod.yml pull --no-parallel
+
+            # Deploy service(s)
+            if [ "${{ github.event.inputs.service }}" = "all" ]; then
+              echo "Starting all services..."
+              docker-compose -f docker-compose.prod.yml up -d
+            else
+              echo "Starting ${{ github.event.inputs.service }}..."
+              docker-compose -f docker-compose.prod.yml up -d --no-deps ${{ github.event.inputs.service }}
+            fi
+
+            # Wait for services to be healthy
+            sleep 10
+
+            # Check status
+            docker-compose -f docker-compose.prod.yml ps
+
+            # Verify healthchecks
+            if docker-compose -f docker-compose.prod.yml ps | grep -q "unhealthy"; then
+              echo "⚠️  Warning: Some services are unhealthy. Checking logs..."
+              docker-compose -f docker-compose.prod.yml logs --tail=50
+            else
+              echo "✅ All services are healthy"
+            fi
+
+      - name: Verify deployment
+        run: |
+          echo "Deployment complete. Services should be accessible at:"
+          echo "  API:              https://api.hub42.app"
+          echo "  Business Portal:  https://crm.hub42.app"
+          echo "  Admin Portal:     https://admin.hub42.app"
+          echo "  Customer Portal:  https://portal.hub42.app"
+          echo "  Scanner:          https://scan.hub42.app"
+          echo "  Landing:          https://hub42.app"

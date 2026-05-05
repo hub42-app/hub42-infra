@@ -1,0 +1,5 @@
+# ACME certificates (Let's Encrypt)
+acme.json
+
+# Traefik logs
+*.log
