@@ -3,15 +3,15 @@ api.hub42.app {
 }
 
 crm.hub42.app {
-  reverse_proxy site42-business-portal:5173
+  reverse_proxy site42-business-portal:80
 }
 
 admin.hub42.app {
-  reverse_proxy site42-admin-portal:5175
+  reverse_proxy site42-admin-portal:80
 }
 
 portal.hub42.app {
-  reverse_proxy site42-customer-portal:5174
+  reverse_proxy site42-customer-portal:80
 }
 
 scanner.hub42.app {
