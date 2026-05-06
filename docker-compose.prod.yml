@@ -101,9 +101,6 @@ services:
     container_name: site42-business-portal
     environment:
       VITE_API_URL: http://site42-backend:8081
-    depends_on:
-      backend:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -124,9 +121,6 @@ services:
     container_name: site42-admin-portal
     environment:
       VITE_API_URL: http://site42-backend:8081
-    depends_on:
-      backend:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -147,9 +141,6 @@ services:
     container_name: site42-customer-portal
     environment:
       VITE_API_URL: http://site42-backend:8081
-    depends_on:
-      backend:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -171,9 +162,6 @@ services:
     environment:
       VITE_API_URL: http://site42-backend:8081
       VITE_THEME: hybrid
-    depends_on:
-      backend:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -194,9 +182,6 @@ services:
     container_name: site42-scanner
     environment:
       VITE_API_URL: http://site42-backend:8081
-    depends_on:
-      backend:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
