@@ -118,7 +118,7 @@ services:
     image: gryniv/business-portal:latest
     container_name: site42-business-portal
     environment:
-      VITE_API_URL: https://api.${DOMAIN}
+      VITE_API_URL: http://site42-backend:8081
     ports:
       - "5173:5173"
     depends_on:
@@ -147,7 +147,7 @@ services:
     image: gryniv/admin-portal:latest
     container_name: site42-admin-portal
     environment:
-      VITE_API_URL: https://api.${DOMAIN}
+      VITE_API_URL: http://site42-backend:8081
     ports:
       - "5175:5175"
     depends_on:
@@ -176,7 +176,7 @@ services:
     image: gryniv/customer-portal:latest
     container_name: site42-customer-portal
     environment:
-      VITE_API_URL: https://api.${DOMAIN}
+      VITE_API_URL: http://site42-backend:8081
     ports:
       - "5174:5174"
     depends_on:
@@ -204,7 +204,7 @@ services:
     image: gryniv/landing:latest
     container_name: site42-landing
     environment:
-      VITE_API_URL: https://api.${DOMAIN}
+      VITE_API_URL: http://site42-backend:8081
       VITE_THEME: hybrid
     depends_on:
       backend:
