@@ -2,27 +2,17 @@ version: '3.8'
 
 services:
   # ============================================================================
-  # Reverse Proxy + SSL (Caddy)
+  # Reverse Proxy (Dev - на локальному порту 3000)
   # ============================================================================
   caddy:
     image: caddy:latest
     container_name: site42-caddy
     ports:
-      - "80:80"
-      - "443:443"
+      - "3000:8080"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
     networks:
       - site42-network
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    restart: unless-stopped
 
   # ============================================================================
   # Database
@@ -38,12 +28,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d site42"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 3
     networks:
       - site42-network
-    restart: unless-stopped
 
   # ============================================================================
   # Cache
@@ -53,21 +42,25 @@ services:
     container_name: site42-redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 3
     networks:
       - site42-network
-    restart: unless-stopped
 
   # ============================================================================
-  # Backend API
+  # Backend API (Dev - Maven hot reload)
   # ============================================================================
   backend:
     build:
       context: ../api
-      dockerfile: Dockerfile.local-prod
+      dockerfile: Dockerfile.dev
     container_name: site42-backend
+    ports:
+      - "8081:8081"
+    volumes:
+      - ../api/src:/app/src:ro
+      - ../api/pom.xml:/app/pom.xml:ro
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/site42
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
@@ -75,137 +68,101 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret}
       SENTRY_DSN: ${SENTRY_DSN}
       SENTRY_TRACES_RATE: ${SENTRY_TRACES_RATE}
       MAIL_HOST: ${MAIL_HOST}
       MAIL_PORT: ${MAIL_PORT}
       MAIL_FROM: ${MAIL_FROM}
-      APP_BASE_URL: ${APP_BASE_URL}
-      PORTAL_BASE_URL: ${PORTAL_BASE_URL}
-      CORS_ALLOWED_ORIGINS: "https://hub42.app,https://*.hub42.app"
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      PORTAL_BASE_URL: ${PORTAL_BASE_URL:-http://localhost:3000}
+      CORS_ALLOWED_ORIGINS: "http://localhost:*,http://127.0.0.1:*,http://192.168.*.*:*,http://10.*.*.*:*,http://172.16.*.*:*,http://172.17.*.*:*,http://172.18.*.*:*,http://172.19.*.*:*,http://172.2*.*.*:*,http://172.30.*.*:*,http://172.31.*.*:*"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/v3/api-docs"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 90s
     networks:
       - site42-network
-    restart: unless-stopped
 
   # ============================================================================
-  # Frontend: CRM Portal
+  # Frontend: CRM Portal (Dev)
   # ============================================================================
   business-portal:
     build:
       context: ../crm
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
     container_name: site42-business-portal
+    ports:
+      - "5173:5173"
     environment:
       VITE_API_URL: http://site42-backend:8081
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     networks:
       - site42-network
-    restart: unless-stopped
 
   # ============================================================================
-  # Frontend: Admin Portal
+  # Frontend: Admin Portal (Dev)
   # ============================================================================
   admin-portal:
     build:
       context: ../admin
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
     container_name: site42-admin-portal
+    ports:
+      - "5175:5175"
     environment:
       VITE_API_URL: http://site42-backend:8081
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     networks:
       - site42-network
-    restart: unless-stopped
 
   # ============================================================================
-  # Frontend: Customer Portal
+  # Frontend: Customer Portal (Dev)
   # ============================================================================
   customer-portal:
     build:
       context: ../customer
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
     container_name: site42-customer-portal
+    ports:
+      - "5174:5174"
     environment:
       VITE_API_URL: http://site42-backend:8081
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     networks:
       - site42-network
-    restart: unless-stopped
 
   # ============================================================================
-  # Frontend: Landing (Production build with nginx)
+  # Frontend: Landing (Dev)
   # ============================================================================
   landing:
     build:
       context: ../landing
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
     container_name: site42-landing
+    ports:
+      - "5177:5177"
     environment:
-      VITE_API_URL: http://site42-backend:8081
       VITE_THEME: hybrid
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+      VITE_DEV_PORT: 5177
     networks:
       - site42-network
-    restart: unless-stopped
 
   # ============================================================================
-  # Frontend: Scanner
+  # Frontend: Scanner (Dev - nginx build)
   # ============================================================================
   scanner:
     build:
       context: ../scanner
       dockerfile: Dockerfile
     container_name: site42-scanner
+    ports:
+      - "5176:5176"
     environment:
       VITE_API_URL: http://site42-backend:8081
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
     networks:
       - site42-network
-    restart: unless-stopped
 
 volumes:
   postgres_data:
-    driver: local
-  caddy_data:
-    driver: local
-  caddy_config:
     driver: local
 
 networks:

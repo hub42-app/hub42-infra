@@ -1,23 +1,27 @@
-api.hub42.app {
-  reverse_proxy site42-backend:8081
-}
+:8080 {
+  @api host api.hub42.app
+  @crm host crm.hub42.app
+  @admin host admin.hub42.app
+  @portal host portal.hub42.app
+  @scanner host scanner.hub42.app
+  @landing host hub42.app
 
-crm.hub42.app {
-  reverse_proxy site42-business-portal:80
-}
-
-admin.hub42.app {
-  reverse_proxy site42-admin-portal:80
-}
-
-portal.hub42.app {
-  reverse_proxy site42-customer-portal:80
-}
-
-scanner.hub42.app {
-  reverse_proxy site42-scanner:80
-}
-
-hub42.app {
-  reverse_proxy site42-landing:80
+  handle @api {
+    reverse_proxy site42-backend:8081
+  }
+  handle @crm {
+    reverse_proxy site42-business-portal:80
+  }
+  handle @admin {
+    reverse_proxy site42-admin-portal:80
+  }
+  handle @portal {
+    reverse_proxy site42-customer-portal:80
+  }
+  handle @scanner {
+    reverse_proxy site42-scanner:80
+  }
+  handle @landing {
+    reverse_proxy site42-landing:5177
+  }
 }
