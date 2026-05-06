@@ -8,8 +8,8 @@ services:
     image: caddy:latest
     container_name: site42-caddy
     ports:
-      - "80:80"
-      - "443:443"
+      - "3000:8080"
+      - "3443:8080"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -17,7 +17,7 @@ services:
     networks:
       - site42-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -107,6 +107,7 @@ services:
       context: ../crm
       dockerfile: Dockerfile.prod
     container_name: site42-business-portal
+    ports: []
     environment:
       VITE_API_URL: http://site42-backend:8081
     healthcheck:
@@ -127,6 +128,7 @@ services:
       context: ../admin
       dockerfile: Dockerfile.prod
     container_name: site42-admin-portal
+    ports: []
     environment:
       VITE_API_URL: http://site42-backend:8081
     healthcheck:
@@ -143,6 +145,7 @@ services:
   # Frontend: Customer Portal
   # ============================================================================
   customer-portal:
+    ports: []
     build:
       context: ../customer
       dockerfile: Dockerfile.prod
@@ -163,6 +166,7 @@ services:
   # Frontend: Landing (Production build with nginx)
   # ============================================================================
   landing:
+    ports: []
     build:
       context: ../landing
       dockerfile: Dockerfile.prod
@@ -184,6 +188,7 @@ services:
   # Frontend: Scanner
   # ============================================================================
   scanner:
+    ports: []
     build:
       context: ../scanner
       dockerfile: Dockerfile

@@ -5,7 +5,11 @@
   @portal host portal.hub42.app
   @scanner host scanner.hub42.app
   @landing host hub42.app
+  @health path /health
 
+  handle @health {
+    respond 200
+  }
   handle @api {
     reverse_proxy site42-backend:8081
   }
@@ -22,6 +26,6 @@
     reverse_proxy site42-scanner:80
   }
   handle @landing {
-    reverse_proxy site42-landing:5177
+    reverse_proxy site42-landing:80
   }
 }

@@ -1,0 +1,31 @@
+:8080 {
+  @api host api.hub42.local
+  @crm host crm.hub42.local
+  @admin host admin.hub42.local
+  @portal host portal.hub42.local
+  @scanner host scanner.hub42.local
+  @landing host hub42.local
+  @health path /health
+
+  handle @health {
+    respond 200
+  }
+  handle @api {
+    reverse_proxy site42-backend:8081
+  }
+  handle @crm {
+    reverse_proxy site42-business-portal:5173
+  }
+  handle @admin {
+    reverse_proxy site42-admin-portal:5175
+  }
+  handle @portal {
+    reverse_proxy site42-customer-portal:5174
+  }
+  handle @scanner {
+    reverse_proxy site42-scanner:5176
+  }
+  handle @landing {
+    reverse_proxy site42-landing:5177
+  }
+}

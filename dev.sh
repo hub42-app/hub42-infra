@@ -1,70 +1,79 @@
 #!/bin/bash
-# Development environment launcher
-# Usage: ./dev.sh [up|down|logs|restart]
+# Local development helper script
+# Usage: ./dev.sh [command]
 
 set -e
 
-COMMAND="${1:-up}"
+COMPOSE_FILE="docker-compose.dev.yml"
+ENV_FILE=".env.dev"
 
-case "$COMMAND" in
+case "${1:-help}" in
   up)
-    echo "🚀 Starting development environment..."
-    docker-compose -f docker-compose.dev.yml up -d
+    echo "🚀 Запуск локального середовища..."
+    docker-compose -f $COMPOSE_FILE up -d
     echo ""
-    echo "✅ Development environment is running!"
+    echo "✓ Середовище запущено!"
     echo ""
-    echo "📍 Services:"
-    echo "  - Backend API: http://localhost:8081"
-    echo "  - Landing: http://localhost:5177"
-    echo "  - CRM Portal: http://localhost:5173"
-    echo "  - Admin Portal: http://localhost:5174"
-    echo "  - Customer Portal: http://localhost:5175"
-    echo "  - Reverse Proxy: http://localhost:3000"
+    echo "📍 Додай в /etc/hosts (якщо ще не додав):"
+    echo "   127.0.0.1 hub42.local api.hub42.local crm.hub42.local admin.hub42.local portal.hub42.local scanner.hub42.local"
     echo ""
-    echo "💻 View logs: ./dev.sh logs [service]"
-    echo "🛑 Stop: ./dev.sh down"
+    echo "🌐 Портали доступні за адресами:"
+    echo "   Landing:  http://hub42.local:3000"
+    echo "   CRM:      http://crm.hub42.local:3000"
+    echo "   Admin:    http://admin.hub42.local:3000"
+    echo "   Customer: http://portal.hub42.local:3000"
+    echo "   Scanner:  http://scanner.hub42.local:3000"
+    echo "   API:      http://api.hub42.local:3000"
+    echo ""
+    echo "📊 Або прямо на dev портах:"
+    echo "   Landing:  http://localhost:5177"
+    echo "   CRM:      http://localhost:5173"
+    echo "   Admin:    http://localhost:5175"
+    echo "   Customer: http://localhost:5174"
+    echo "   API:      http://localhost:8081"
     ;;
-
   down)
-    echo "🛑 Stopping development environment..."
-    docker-compose -f docker-compose.dev.yml down
-    echo "✅ Development environment stopped"
+    echo "🛑 Зупинка середовища..."
+    docker-compose -f $COMPOSE_FILE down
+    echo "✓ Середовище зупинено"
     ;;
-
-  logs)
-    SERVICE="${2:-}"
-    if [ -z "$SERVICE" ]; then
-      docker-compose -f docker-compose.dev.yml logs -f
-    else
-      docker-compose -f docker-compose.dev.yml logs -f "$SERVICE"
-    fi
-    ;;
-
   restart)
-    SERVICE="${2:-}"
-    if [ -z "$SERVICE" ]; then
-      echo "Usage: ./dev.sh restart [service]"
-      echo "Example: ./dev.sh restart backend"
-      exit 1
+    echo "🔄 Перезавантаження..."
+    docker-compose -f $COMPOSE_FILE restart
+    echo "✓ Перезавантажено"
+    ;;
+  logs)
+    service=${2:-all}
+    if [ "$service" = "all" ]; then
+      docker-compose -f $COMPOSE_FILE logs -f
+    else
+      docker-compose -f $COMPOSE_FILE logs -f $service
     fi
-    echo "🔄 Restarting $SERVICE..."
-    docker-compose -f docker-compose.dev.yml restart "$SERVICE"
-    echo "✅ $SERVICE restarted"
     ;;
-
-  status)
-    docker ps --filter "name=site42" --format "table {{.Names}}\t{{.Ports}}\t{{.Status}}"
+  status|ps)
+    docker-compose -f $COMPOSE_FILE ps
     ;;
-
+  clean)
+    echo "🧹 Видалення контейнерів і томів..."
+    docker-compose -f $COMPOSE_FILE down -v
+    echo "✓ Очищено"
+    ;;
   *)
+    echo "site42 Local Development Helper"
+    echo ""
     echo "Usage: ./dev.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  up         - Start development environment"
-    echo "  down       - Stop development environment"
-    echo "  logs       - View logs (use: ./dev.sh logs [service])"
-    echo "  restart    - Restart service (use: ./dev.sh restart [service])"
-    echo "  status     - Show service status"
-    exit 1
+    echo "  up              - Запустити локальне середовище"
+    echo "  down            - Зупинити середовище"
+    echo "  restart         - Перезавантажити контейнери"
+    echo "  status, ps      - Показати статус контейнерів"
+    echo "  logs [service]  - Переглянути логи (service: backend, landing, crm, admin, customer, scanner)"
+    echo "  clean           - Видалити всі контейнери і томи"
+    echo ""
+    echo "Приклади:"
+    echo "  ./dev.sh up              # Запустити всю систему"
+    echo "  ./dev.sh logs backend    # Переглянути логи backend'у"
+    echo "  ./dev.sh logs landing    # Переглянути логи landing'у"
     ;;
 esac
