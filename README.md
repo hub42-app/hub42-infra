@@ -1,6 +1,6 @@
-# site42-infra — Deployment & Infrastructure
+# hub42-infra — Deployment & Infrastructure
 
-Central repository for coordinating deployment of site42 SaaS across all services on Hetzner VPS.
+Central repository for coordinating deployment of hub42 SaaS across all services on Hetzner VPS.
 
 ## Quick Start
 
@@ -19,7 +19,7 @@ ssh root@HETZNER_IP 'bash -s' < scripts/setup-server.sh
 
 This will:
 - Install Docker + Docker Compose
-- Create `/opt/site42/` directory structure
+- Create `/opt/hub42/` directory structure
 - Configure firewall (UFW): allows ports 22, 80, 443
 - Initialize SSL certificate storage (acme.json)
 - Create systemd service for auto-start
@@ -30,7 +30,7 @@ Edit `.env` on the VPS:
 
 ```bash
 ssh root@HETZNER_IP
-cd /opt/site42
+cd /opt/hub42
 nano .env
 ```
 
@@ -46,7 +46,7 @@ nano .env
 
 ```bash
 ssh root@HETZNER_IP
-cd /opt/site42
+cd /opt/hub42
 docker-compose -f docker-compose.prod.yml pull
 docker-compose -f docker-compose.prod.yml up -d
 ```
@@ -77,7 +77,7 @@ In GitHub organization settings → Secrets and variables → Actions:
 SSH directly to VPS and run:
 
 ```bash
-cd /opt/site42
+cd /opt/hub42
 bash deploy.sh [service]    # Deploy specific service
 bash deploy.sh              # Deploy all services
 ```
@@ -134,7 +134,7 @@ Each of the 6 services has `.github/workflows/ci.yml` that:
 ## Directory Structure
 
 ```
-site42-infra/
+hub42-infra/
 ├── docker-compose.prod.yml    # Production orchestration
 ├── traefik/
 │   ├── traefik.yml            # Reverse proxy static config
@@ -154,17 +154,17 @@ site42-infra/
 ### Check VPS Status
 
 ```bash
-ssh root@HETZNER_IP 'cd /opt/site42 && docker-compose ps'
+ssh root@HETZNER_IP 'cd /opt/hub42 && docker-compose ps'
 ```
 
 ### View Logs
 
 ```bash
 # Traefik logs (reverse proxy)
-ssh root@HETZNER_IP 'cd /opt/site42 && docker-compose logs -f traefik'
+ssh root@HETZNER_IP 'cd /opt/hub42 && docker-compose logs -f traefik'
 
 # Specific service logs
-ssh root@HETZNER_IP 'cd /opt/site42 && docker-compose logs -f backend'
+ssh root@HETZNER_IP 'cd /opt/hub42 && docker-compose logs -f backend'
 ```
 
 ### Check Domain Resolution
@@ -178,13 +178,13 @@ nslookup crm.hub42.app
 ### Restart a Service
 
 ```bash
-ssh root@HETZNER_IP 'cd /opt/site42 && docker-compose restart backend'
+ssh root@HETZNER_IP 'cd /opt/hub42 && docker-compose restart backend'
 ```
 
 ### Check SSL Certificates
 
 ```bash
-ssh root@HETZNER_IP 'ls -la /opt/site42/traefik/acme.json'
+ssh root@HETZNER_IP 'ls -la /opt/hub42/traefik/acme.json'
 ```
 
 ## GitHub Secrets Setup (Script)
@@ -232,7 +232,7 @@ https://traefik.hub42.app
 
 ## Related Repositories
 
-- **site42 (main)** — Root documentation and monorepo with all services
+- **hub42 (main)** — Root documentation and monorepo with all services
 - **backend** — Spring Boot 3.4 / Java 21 multi-tenant CRM
 - **business-portal** — React 19 + Vite staff portal
 - **admin-portal** — React 19 + Vite admin panel

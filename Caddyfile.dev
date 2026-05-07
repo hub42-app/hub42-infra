@@ -11,21 +11,21 @@
     respond 200
   }
   handle @api {
-    reverse_proxy site42-backend:8081
+    reverse_proxy hub42-backend:8081
   }
   handle @crm {
-    reverse_proxy site42-business-portal:5173
+    reverse_proxy hub42-business-portal:5173
   }
   handle @admin {
-    reverse_proxy site42-admin-portal:5175
+    reverse_proxy hub42-admin-portal:5175
   }
   handle @portal {
-    reverse_proxy site42-customer-portal:5174
+    reverse_proxy hub42-customer-portal:5174
   }
   handle @scanner {
-    reverse_proxy site42-scanner:5176
+    reverse_proxy hub42-scanner:5176
   }
   handle @landing {
-    reverse_proxy site42-landing:5177
+    reverse_proxy hub42-landing:5177
   }
 }

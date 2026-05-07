@@ -6,7 +6,7 @@ services:
   # ============================================================================
   caddy:
     image: caddy:latest
-    container_name: site42-caddy
+    container_name: hub42-caddy
     ports:
       - "3000:8080"
       - "3443:8080"
@@ -15,7 +15,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - site42-network
+      - hub42-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
       interval: 30s
@@ -29,20 +29,20 @@ services:
   # ============================================================================
   postgres:
     image: postgres:16-alpine
-    container_name: site42-postgres
+    container_name: hub42-postgres
     environment:
-      POSTGRES_DB: site42
+      POSTGRES_DB: hub42
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d site42"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d hub42"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
   # ============================================================================
@@ -50,14 +50,14 @@ services:
   # ============================================================================
   redis:
     image: redis:7-alpine
-    container_name: site42-redis
+    container_name: hub42-redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
   # ============================================================================
@@ -67,9 +67,9 @@ services:
     build:
       context: ../api
       dockerfile: Dockerfile.local-prod
-    container_name: site42-backend
+    container_name: hub42-backend
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/site42
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hub42
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_REDIS_HOST: redis
@@ -96,7 +96,7 @@ services:
       retries: 5
       start_period: 90s
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
   # ============================================================================
@@ -106,10 +106,10 @@ services:
     build:
       context: ../crm
       dockerfile: Dockerfile.prod
-    container_name: site42-business-portal
+    container_name: hub42-business-portal
     ports: []
     environment:
-      VITE_API_URL: http://site42-backend:8081
+      VITE_API_URL: http://hub42-backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -117,7 +117,7 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
   # ============================================================================
@@ -127,10 +127,10 @@ services:
     build:
       context: ../admin
       dockerfile: Dockerfile.prod
-    container_name: site42-admin-portal
+    container_name: hub42-admin-portal
     ports: []
     environment:
-      VITE_API_URL: http://site42-backend:8081
+      VITE_API_URL: http://hub42-backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -138,7 +138,7 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
   # ============================================================================
@@ -149,9 +149,9 @@ services:
     build:
       context: ../customer
       dockerfile: Dockerfile.prod
-    container_name: site42-customer-portal
+    container_name: hub42-customer-portal
     environment:
-      VITE_API_URL: http://site42-backend:8081
+      VITE_API_URL: http://hub42-backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -159,7 +159,7 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
   # ============================================================================
@@ -170,9 +170,9 @@ services:
     build:
       context: ../landing
       dockerfile: Dockerfile.prod
-    container_name: site42-landing
+    container_name: hub42-landing
     environment:
-      VITE_API_URL: http://site42-backend:8081
+      VITE_API_URL: http://hub42-backend:8081
       VITE_THEME: hybrid
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
@@ -181,7 +181,7 @@ services:
       retries: 3
       start_period: 15s
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
   # ============================================================================
@@ -192,9 +192,9 @@ services:
     build:
       context: ../scanner
       dockerfile: Dockerfile
-    container_name: site42-scanner
+    container_name: hub42-scanner
     environment:
-      VITE_API_URL: http://site42-backend:8081
+      VITE_API_URL: http://hub42-backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -202,7 +202,7 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - site42-network
+      - hub42-network
     restart: unless-stopped
 
 volumes:
@@ -214,5 +214,5 @@ volumes:
     driver: local
 
 networks:
-  site42-network:
+  hub42-network:
     driver: bridge

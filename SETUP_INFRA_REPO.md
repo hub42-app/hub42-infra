@@ -1,17 +1,17 @@
-# Setup site42-infra Repository
+# Setup hub42-infra Repository
 
 This document explains how to create and setup the central infrastructure repository for coordinating deployments across all 6 service repos.
 
 ## Overview
 
-`site42-infra` is a separate GitHub repository that contains:
+`hub42-infra` is a separate GitHub repository that contains:
 - `docker-compose.prod.yml` — Production orchestration with Traefik
 - `traefik/` — Reverse proxy + SSL configuration
 - `scripts/` — Deployment automation
 - `.github/workflows/` — GitHub Actions CI/CD pipelines
 - Documentation
 
-This repo is used to deploy and manage the entire site42 SaaS platform on Hetzner.
+This repo is used to deploy and manage the entire hub42 SaaS platform on Hetzner.
 
 ---
 
@@ -27,7 +27,7 @@ This repo is used to deploy and manage the entire site42 SaaS platform on Hetzne
 gh auth login
 
 # Create the repository in your GitHub organization
-gh repo create site42-infra \
+gh repo create hub42-infra \
   --public \
   --source=. \
   --remote=origin \
@@ -35,13 +35,13 @@ gh repo create site42-infra \
   --org=YOUR_ORG_NAME
 
 # Or if using personal account:
-gh repo create site42-infra --public --source=. --remote=origin --push
+gh repo create hub42-infra --public --source=. --remote=origin --push
 ```
 
 ### Option B: Via GitHub Web UI
 
 1. Go to https://github.com/new
-2. Enter repository name: `site42-infra`
+2. Enter repository name: `hub42-infra`
 3. Select "Public" (for GitHub Actions to work with free tier)
 4. Click "Create repository"
 5. Copy the repository URL
@@ -52,8 +52,8 @@ gh repo create site42-infra --public --source=. --remote=origin --push
 
 ```bash
 # Create local repo directory
-mkdir site42-infra
-cd site42-infra
+mkdir hub42-infra
+cd hub42-infra
 
 # Initialize git
 git init
@@ -78,7 +78,7 @@ cp ../scripts/deploy.sh ./scripts/
 
 ## Step 3: Create Documentation
 
-Create these files in the site42-infra repo:
+Create these files in the hub42-infra repo:
 
 ### .gitignore
 ```
@@ -113,9 +113,9 @@ logs/
 
 ### README.md
 ```markdown
-# site42-infra — Deployment & Infrastructure
+# hub42-infra — Deployment & Infrastructure
 
-Central repository for coordinating deployment of site42 SaaS across all services.
+Central repository for coordinating deployment of hub42 SaaS across all services.
 
 ## Quick Start
 
@@ -126,14 +126,14 @@ ssh root@HETZNER_IP 'bash -s' < scripts/setup-server.sh
 
 ### 2. Copy Configuration to VPS
 \`\`\`bash
-scp docker-compose.prod.yml root@HETZNER_IP:/opt/site42/
-scp -r traefik/ root@HETZNER_IP:/opt/site42/
+scp docker-compose.prod.yml root@HETZNER_IP:/opt/hub42/
+scp -r traefik/ root@HETZNER_IP:/opt/hub42/
 \`\`\`
 
 ### 3. Edit Environment Variables
 \`\`\`bash
 ssh root@HETZNER_IP
-nano /opt/site42/.env
+nano /opt/hub42/.env
 \`\`\`
 
 Set:
@@ -145,7 +145,7 @@ Set:
 
 ### 4. Start Services
 \`\`\`bash
-cd /opt/site42
+cd /opt/hub42
 docker-compose pull
 docker-compose up -d
 \`\`\`
@@ -153,7 +153,7 @@ docker-compose up -d
 ## Directory Structure
 
 \`\`\`
-site42-infra/
+hub42-infra/
 ├── docker-compose.prod.yml    # Production orchestration
 ├── traefik/
 │   ├── traefik.yml            # Reverse proxy config
@@ -175,7 +175,7 @@ site42-infra/
 Each service repo (backend + 5 frontends) has:
 - \`.github/workflows/ci.yml\` → Test, Build Docker image, Push to ghcr.io
 
-### site42-infra Repo (CD)
+### hub42-infra Repo (CD)
 - \`.github/workflows/deploy.yml\` → Manual trigger → SSH deploy to Hetzner
 
 ## Deployment
@@ -186,7 +186,7 @@ Each service repo (backend + 5 frontends) has:
 ssh root@HETZNER_IP
 
 # Update and restart services
-cd /opt/site42
+cd /opt/hub42
 bash deploy.sh [service]    # or just deploy.sh for all
 \`\`\`
 
@@ -214,17 +214,17 @@ See [scripts/deploy.sh](./scripts/deploy.sh) for deployment details.
 
 ### Check VPS Status
 \`\`\`bash
-ssh root@HETZNER_IP 'cd /opt/site42 && docker-compose ps'
+ssh root@HETZNER_IP 'cd /opt/hub42 && docker-compose ps'
 \`\`\`
 
 ### View Logs
 \`\`\`bash
-ssh root@HETZNER_IP 'cd /opt/site42 && docker-compose logs -f traefik'
+ssh root@HETZNER_IP 'cd /opt/hub42 && docker-compose logs -f traefik'
 \`\`\`
 
 ## References
 
-- [Root Documentation](https://github.com/ORG/site42)
+- [Root Documentation](https://github.com/ORG/hub42)
 - [Backend Repo](https://github.com/ORG/backend)
 - [Business Portal Repo](https://github.com/ORG/business-portal)
 ```
@@ -238,7 +238,7 @@ DOMAIN=hub42.app
 GITHUB_ORG=your-github-org
 
 # Database
-DB_USER=site42_user
+DB_USER=hub42_user
 DB_PASSWORD=change-this-to-a-strong-password-at-least-16-chars
 
 # JWT
@@ -271,11 +271,11 @@ TZ=UTC
 ## Step 4: Initialize Git and Push
 
 ```bash
-cd site42-infra
+cd hub42-infra
 
 # Create initial commit
 git add .
-git commit -m "Initial commit: site42 infrastructure setup
+git commit -m "Initial commit: hub42 infrastructure setup
 
 - Docker Compose configuration for production
 - Traefik reverse proxy with Let's Encrypt SSL
@@ -283,7 +283,7 @@ git commit -m "Initial commit: site42 infrastructure setup
 - Deployment scripts for Hetzner VPS"
 
 # Add remote origin (replace with your GitHub repo URL)
-git remote add origin https://github.com/YOUR_ORG/site42-infra.git
+git remote add origin https://github.com/YOUR_ORG/hub42-infra.git
 git branch -M main
 
 # Push to GitHub
@@ -319,10 +319,10 @@ PROD_SENTRY_DSN = (optional, from Sentry account)
 
 ## Step 7: Update Root README
 
-In the root `site42` repository, add links to site42-infra:
+In the root `hub42` repository, add links to hub42-infra:
 
 ```markdown
-# site42
+# hub42
 
 ## Repositories
 
@@ -332,11 +332,11 @@ In the root `site42` repository, add links to site42-infra:
 - [customer-portal](https://github.com/ORG/customer-portal)
 - [scanner](https://github.com/ORG/scanner)
 - [landing](https://github.com/ORG/landing)
-- **[site42-infra](https://github.com/ORG/site42-infra)** — Infrastructure & deployment
+- **[hub42-infra](https://github.com/ORG/hub42-infra)** — Infrastructure & deployment
 
 ## Deployment
 
-See [site42-infra](https://github.com/ORG/site42-infra) for production deployment instructions.
+See [hub42-infra](https://github.com/ORG/hub42-infra) for production deployment instructions.
 ```
 
 ---
@@ -345,7 +345,7 @@ See [site42-infra](https://github.com/ORG/site42-infra) for production deploymen
 
 Your infrastructure repository is now ready. Next steps:
 
-1. ✅ Create `site42-infra` repo on GitHub
+1. ✅ Create `hub42-infra` repo on GitHub
 2. ✅ Add environment secrets to GitHub org
 3. ✅ Test CI workflows in each service repo
 4. ✅ Test CD workflow by manually triggering deployment

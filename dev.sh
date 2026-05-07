@@ -59,7 +59,7 @@ case "${1:-help}" in
     echo "✓ Очищено"
     ;;
   *)
-    echo "site42 Local Development Helper"
+    echo "hub42 Local Development Helper"
     echo ""
     echo "Usage: ./dev.sh [command]"
     echo ""

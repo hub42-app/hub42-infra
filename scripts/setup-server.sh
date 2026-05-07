@@ -12,7 +12,7 @@
 set -e
 
 echo "=================================================="
-echo "site42 — Hetzner VPS Setup"
+echo "hub42 — Hetzner VPS Setup"
 echo "=================================================="
 
 # Colors for output
@@ -88,20 +88,20 @@ ufw status
 # ============================================================================
 # 6. Create Project Directory Structure
 # ============================================================================
-log_info "Creating project directory structure at /opt/site42..."
-mkdir -p /opt/site42/traefik
+log_info "Creating project directory structure at /opt/hub42..."
+mkdir -p /opt/hub42/traefik
 
 log_info "Creating ACME certificate file (Let's Encrypt)..."
-touch /opt/site42/traefik/acme.json
-chmod 600 /opt/site42/traefik/acme.json
+touch /opt/hub42/traefik/acme.json
+chmod 600 /opt/hub42/traefik/acme.json
 
 # ============================================================================
 # 7. Create Environment Variables
 # ============================================================================
 log_info "Creating .env file..."
-cat > /opt/site42/.env <<'EOF'
+cat > /opt/hub42/.env <<'EOF'
 # ============================================================================
-# site42 Production Environment Variables
+# hub42 Production Environment Variables
 # ============================================================================
 
 # Domain
@@ -111,7 +111,7 @@ DOMAIN=hub42.app
 GITHUB_ORG=your-github-org
 
 # Database
-DB_USER=site42_user
+DB_USER=hub42_user
 DB_PASSWORD=change-this-to-a-strong-password
 
 # JWT Secret
@@ -139,14 +139,14 @@ ACME_EMAIL=admin@hub42.app
 TZ=UTC
 EOF
 
-log_warn "⚠️  IMPORTANT: Edit /opt/site42/.env and set production values!"
-log_info "Edit .env file: nano /opt/site42/.env"
+log_warn "⚠️  IMPORTANT: Edit /opt/hub42/.env and set production values!"
+log_info "Edit .env file: nano /opt/hub42/.env"
 
 # ============================================================================
 # 8. Create Docker Network
 # ============================================================================
-log_info "Creating Docker network (site42-network)..."
-docker network create site42-network || log_warn "Network already exists"
+log_info "Creating Docker network (hub42-network)..."
+docker network create hub42-network || log_warn "Network already exists"
 
 # ============================================================================
 # 9. Enable Docker Service Auto-Start
@@ -180,17 +180,17 @@ log_info "=================================================="
 echo ""
 echo "Next steps:"
 echo ""
-echo "1. Copy docker-compose.prod.yml to /opt/site42/"
-echo "   scp docker-compose.prod.yml root@HETZNER_IP:/opt/site42/"
+echo "1. Copy docker-compose.prod.yml to /opt/hub42/"
+echo "   scp docker-compose.prod.yml root@HETZNER_IP:/opt/hub42/"
 echo ""
-echo "2. Copy traefik config to /opt/site42/traefik/"
-echo "   scp traefik/traefik.yml root@HETZNER_IP:/opt/site42/traefik/"
+echo "2. Copy traefik config to /opt/hub42/traefik/"
+echo "   scp traefik/traefik.yml root@HETZNER_IP:/opt/hub42/traefik/"
 echo ""
 echo "3. Edit environment variables:"
-echo "   nano /opt/site42/.env"
+echo "   nano /opt/hub42/.env"
 echo ""
 echo "4. Start services:"
-echo "   cd /opt/site42"
+echo "   cd /opt/hub42"
 echo "   docker-compose pull"
 echo "   docker-compose up -d"
 echo ""

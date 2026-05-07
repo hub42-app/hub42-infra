@@ -32,11 +32,11 @@ jobs:
           username: root
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
-            cd /opt/site42
+            cd /opt/hub42
 
             # Load environment
             if [ ! -f .env ]; then
-              echo "Error: .env not found at /opt/site42/.env"
+              echo "Error: .env not found at /opt/hub42/.env"
               exit 1
             fi
 

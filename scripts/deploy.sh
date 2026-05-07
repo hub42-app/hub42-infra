@@ -6,7 +6,7 @@
 # This script pulls the latest Docker images and restarts services.
 #
 # Usage (local):  ./scripts/deploy.sh [service]
-# Usage (remote): ssh root@HETZNER_IP 'cd /opt/site42 && bash deploy.sh [service]'
+# Usage (remote): ssh root@HETZNER_IP 'cd /opt/hub42 && bash deploy.sh [service]'
 #
 # Examples:
 #   ./scripts/deploy.sh                    # Deploy all services
