@@ -10,21 +10,27 @@
   handle @health {
     respond 200
   }
+
   handle @api {
     reverse_proxy backend:8081
   }
+
   handle @crm {
     reverse_proxy business-portal:80
   }
+
   handle @admin {
     reverse_proxy admin-portal:80
   }
+
   handle @portal {
     reverse_proxy customer-portal:80
   }
+
   handle @scanner {
     reverse_proxy scanner:80
   }
+
   handle @landing {
     reverse_proxy landing:80
   }
