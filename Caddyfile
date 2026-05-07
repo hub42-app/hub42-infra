@@ -1,14 +1,6 @@
 {
   http_port 8000
   https_port 8443
-
-  on_demand_tls {
-    ask http://localhost:8080/health
-  }
-
-  tls internal {
-    on_demand
-  }
 }
 
 crm.hub42.app {
