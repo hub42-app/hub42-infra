@@ -1,6 +1,6 @@
 {
-  http_port 8000
-  https_port 8443
+  http_port 80
+  https_port 443
 }
 
 crm.hub42.app {
