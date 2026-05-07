@@ -1,6 +1,8 @@
 {
   http_port 80
   https_port 443
+  # TODO: перейти назад на production Let's Encrypt коли rate limit скінчиться
+  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
 crm.hub42.app {
