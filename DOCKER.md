@@ -54,8 +54,8 @@ export DB_USER=YOUR_DB_USER \
        MAIL_HOST=smtp.example.com \
        MAIL_PORT=587 \
        MAIL_FROM=noreply@hub42.app \
-       APP_BASE_URL=https://hub42.app \
-       PORTAL_BASE_URL=https://hub42.app
+       APP_BASE_URL=https://crm.hub42.app \
+       PORTAL_BASE_URL=https://portal.hub42.app
 
 docker-compose -f docker-compose.prod.yml up -d
 ```
