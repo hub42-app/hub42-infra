@@ -33,7 +33,7 @@ crm.hub42.app {
 
   # API requests to backend (rewrite /api/v1/* to /api/internal/v1/*)
   handle /api/v1* {
-    uri path regexp ^/api/v1(.*)$ /api/internal/v1$1
+    rewrite /api/v1/* /api/internal/v1{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -58,7 +58,7 @@ admin.hub42.app {
 
   # API requests to backend (rewrite /api/v1/admin/* to /api/internal/v1/admin/*)
   handle /api/v1/admin* {
-    uri path regexp ^/api/v1/admin(.*)$ /api/internal/v1/admin$1
+    rewrite /api/v1/admin/* /api/internal/v1/admin{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -83,7 +83,7 @@ customer.hub42.app {
 
   # API requests to backend (rewrite /api/v1/* to /api/internal/v1/*)
   handle /api/v1* {
-    uri path regexp ^/api/v1(.*)$ /api/internal/v1$1
+    rewrite /api/v1/* /api/internal/v1{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -108,7 +108,7 @@ scanner.hub42.app {
 
   # API requests to backend (rewrite /api/v1/* to /api/internal/v1/*)
   handle /api/v1* {
-    uri path regexp ^/api/v1(.*)$ /api/internal/v1$1
+    rewrite /api/v1/* /api/internal/v1{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -133,7 +133,7 @@ hub42.app, www.hub42.app {
 
   # API requests to backend (rewrite /api/* to /api/internal/*)
   handle /api/* {
-    uri path regexp ^/api(.*)$ /api/internal$1
+    rewrite /api/* /api/internal{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
