@@ -1,6 +1,7 @@
 # ============================================================================
 # Hub42 Caddy Configuration
 # Internal Docker Network + Selective External API
+# Subdomain-based routing for portals
 # ============================================================================
 
 # ============================================================================
@@ -14,47 +15,57 @@
 }
 
 # ============================================================================
-# hub42.app - Frontend Applications
+# CRM Portal (crm.hub42.app)
 # ============================================================================
-hub42.app {
+crm.hub42.app {
   import security_headers
-
-  # CRM Portal
-  handle /crm* {
-    reverse_proxy business-portal:80 {
-      header_up X-Forwarded-Proto https
-    }
-  }
-
-  # Admin Portal
-  handle /admin* {
-    reverse_proxy admin-portal:80 {
-      header_up X-Forwarded-Proto https
-    }
-  }
-
-  # Customer Portal
-  handle /customer* {
-    reverse_proxy customer-portal:80 {
-      header_up X-Forwarded-Proto https
-    }
-  }
-
-  # Scanner Portal
-  handle /scanner* {
-    reverse_proxy scanner:80 {
-      header_up X-Forwarded-Proto https
-    }
-  }
-
-  # Landing Page (default)
-  reverse_proxy landing:80 {
+  reverse_proxy business-portal:80 {
+    header_up X-Forwarded-For {http.request.remote}
     header_up X-Forwarded-Proto https
   }
+}
 
-  # Health check
-  handle /health {
-    respond 200
+# ============================================================================
+# Admin Portal (admin.hub42.app)
+# ============================================================================
+admin.hub42.app {
+  import security_headers
+  reverse_proxy admin-portal:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
+  }
+}
+
+# ============================================================================
+# Customer Portal (customer.hub42.app)
+# ============================================================================
+customer.hub42.app {
+  import security_headers
+  reverse_proxy customer-portal:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
+  }
+}
+
+# ============================================================================
+# Scanner Portal (scanner.hub42.app)
+# ============================================================================
+scanner.hub42.app {
+  import security_headers
+  reverse_proxy scanner:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
+  }
+}
+
+# ============================================================================
+# Landing Page & Root (hub42.app, www.hub42.app)
+# ============================================================================
+hub42.app, www.hub42.app {
+  import security_headers
+  reverse_proxy landing:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
   }
 }
 
@@ -78,7 +89,9 @@ api.hub42.app {
   }
   handle @integration {
     reverse_proxy backend:8081 {
+      header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {http.request.host}
     }
   }
 
