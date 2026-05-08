@@ -1,0 +1,55 @@
+{
+  http_port 80
+  https_port 443
+}
+
+crm.hub42.app {
+  @api path /api/*
+  handle @api {
+    reverse_proxy backend:8081
+  }
+  reverse_proxy business-portal:80
+}
+
+admin.hub42.app {
+  @api path /api/*
+  handle @api {
+    reverse_proxy backend:8081
+  }
+  reverse_proxy admin-portal:80
+}
+
+portal.hub42.app {
+  @api path /api/*
+  handle @api {
+    reverse_proxy backend:8081
+  }
+  reverse_proxy customer-portal:80
+}
+
+api.hub42.app {
+  reverse_proxy backend:8081
+}
+
+scanner.hub42.app {
+  @api path /api/*
+  handle @api {
+    reverse_proxy backend:8081
+  }
+  reverse_proxy scanner:80
+}
+
+hub42.app {
+  @api path /api/*
+  handle @api {
+    reverse_proxy backend:8081
+  }
+  reverse_proxy landing:80
+}
+
+localhost:8080 {
+  @health path /health
+  handle @health {
+    respond 200
+  }
+}
