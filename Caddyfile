@@ -1,55 +1,91 @@
-{
-  http_port 80
-  https_port 443
-}
+# ============================================================================
+# Hub42 Caddy Configuration
+# Internal Docker Network + Selective External API
+# ============================================================================
 
-crm.hub42.app {
-  @api path /api/*
-  handle @api {
-    reverse_proxy backend:8081
-  }
-  reverse_proxy business-portal:80
-}
-
-admin.hub42.app {
-  @api path /api/*
-  handle @api {
-    reverse_proxy backend:8081
-  }
-  reverse_proxy admin-portal:80
-}
-
-portal.hub42.app {
-  @api path /api/*
-  handle @api {
-    reverse_proxy backend:8081
-  }
-  reverse_proxy customer-portal:80
-}
-
-api.hub42.app {
-  reverse_proxy backend:8081
-}
-
-scanner.hub42.app {
-  @api path /api/*
-  handle @api {
-    reverse_proxy backend:8081
-  }
-  reverse_proxy scanner:80
-}
-
+# ============================================================================
+# hub42.app - Frontend Applications
+# ============================================================================
 hub42.app {
-  @api path /api/*
-  handle @api {
-    reverse_proxy backend:8081
+  # CRM Portal
+  handle /crm* {
+    reverse_proxy business-portal:80 {
+      header_up X-Forwarded-Proto https
+    }
   }
-  reverse_proxy landing:80
-}
 
-localhost:8080 {
-  @health path /health
-  handle @health {
+  # Admin Portal
+  handle /admin* {
+    reverse_proxy admin-portal:80 {
+      header_up X-Forwarded-Proto https
+    }
+  }
+
+  # Customer Portal
+  handle /customer* {
+    reverse_proxy customer-portal:80 {
+      header_up X-Forwarded-Proto https
+    }
+  }
+
+  # Scanner Portal
+  handle /scanner* {
+    reverse_proxy scanner:80 {
+      header_up X-Forwarded-Proto https
+    }
+  }
+
+  # Landing Page (default)
+  reverse_proxy landing:80 {
+    header_up X-Forwarded-Proto https
+  }
+
+  # Health check
+  handle /health {
     respond 200
   }
+}
+
+# ============================================================================
+# api.hub42.app - Integration API Only (Block Internal Endpoints)
+# ============================================================================
+api.hub42.app {
+  # Security: Block any attempt to access internal endpoints
+  @internal {
+    path /api/internal/*
+  }
+  handle @internal {
+    respond "Internal API not accessible externally" 403
+  }
+
+  # Route integration endpoints
+  @integration {
+    path /api/integration/*
+  }
+  handle @integration {
+    reverse_proxy backend:8081 {
+      header_up X-Forwarded-Proto https
+    }
+  }
+
+  # Health endpoint for monitoring
+  handle /health {
+    reverse_proxy backend:8081
+  }
+
+  # Reject everything else
+  respond "Not found" 404
+}
+
+# ============================================================================
+# Global Configuration
+# ============================================================================
+
+# Automatic HTTPS
+auto_https on
+
+# Logging
+log {
+  level INFO
+  format json
 }
