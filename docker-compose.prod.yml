@@ -114,7 +114,7 @@ services:
     container_name: hub42-business-portal
     ports: []
     environment:
-      VITE_API_URL: http://backend:8081/api/internal
+      VITE_API_URL: http://backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -135,7 +135,7 @@ services:
     container_name: hub42-admin-portal
     ports: []
     environment:
-      VITE_API_URL: http://backend:8081/api/internal
+      VITE_API_URL: http://backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -156,7 +156,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: hub42-customer-portal
     environment:
-      VITE_API_URL: http://backend:8081/api/internal
+      VITE_API_URL: http://backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -177,7 +177,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: hub42-landing
     environment:
-      VITE_API_URL: http://backend:8081/api/internal
+      VITE_API_URL: http://backend:8081
       VITE_THEME: hybrid
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
@@ -199,7 +199,7 @@ services:
       dockerfile: Dockerfile
     container_name: hub42-scanner
     environment:
-      VITE_API_URL: http://backend:8081/api/internal
+      VITE_API_URL: http://backend:8081
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
