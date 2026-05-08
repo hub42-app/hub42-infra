@@ -30,6 +30,17 @@
 # ============================================================================
 crm.hub42.app {
   import security_headers
+
+  # API requests to backend
+  handle /api/v1* {
+    reverse_proxy backend:8081 {
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {http.request.host}
+    }
+  }
+
+  # Frontend files
   reverse_proxy business-portal:80 {
     header_up X-Forwarded-For {http.request.remote}
     header_up X-Forwarded-Proto https
@@ -41,6 +52,17 @@ crm.hub42.app {
 # ============================================================================
 admin.hub42.app {
   import security_headers
+
+  # API requests to backend
+  handle /api/v1/admin* {
+    reverse_proxy backend:8081 {
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {http.request.host}
+    }
+  }
+
+  # Frontend files
   reverse_proxy admin-portal:80 {
     header_up X-Forwarded-For {http.request.remote}
     header_up X-Forwarded-Proto https
@@ -52,6 +74,17 @@ admin.hub42.app {
 # ============================================================================
 customer.hub42.app {
   import security_headers
+
+  # API requests to backend
+  handle /api/v1* {
+    reverse_proxy backend:8081 {
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {http.request.host}
+    }
+  }
+
+  # Frontend files
   reverse_proxy customer-portal:80 {
     header_up X-Forwarded-For {http.request.remote}
     header_up X-Forwarded-Proto https
@@ -63,6 +96,17 @@ customer.hub42.app {
 # ============================================================================
 scanner.hub42.app {
   import security_headers
+
+  # API requests to backend
+  handle /api/v1* {
+    reverse_proxy backend:8081 {
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {http.request.host}
+    }
+  }
+
+  # Frontend files
   reverse_proxy scanner:80 {
     header_up X-Forwarded-For {http.request.remote}
     header_up X-Forwarded-Proto https
@@ -74,6 +118,17 @@ scanner.hub42.app {
 # ============================================================================
 hub42.app, www.hub42.app {
   import security_headers
+
+  # API requests to backend
+  handle /api/* {
+    reverse_proxy backend:8081 {
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {http.request.host}
+    }
+  }
+
+  # Frontend files
   reverse_proxy landing:80 {
     header_up X-Forwarded-For {http.request.remote}
     header_up X-Forwarded-Proto https
