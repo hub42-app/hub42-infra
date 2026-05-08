@@ -4,9 +4,21 @@
 # ============================================================================
 
 # ============================================================================
+# Global Security Headers
+# ============================================================================
+(security_headers) {
+  header X-Content-Type-Options nosniff
+  header X-Frame-Options DENY
+  header X-XSS-Protection "1; mode=block"
+  header Referrer-Policy "strict-origin-when-cross-origin"
+}
+
+# ============================================================================
 # hub42.app - Frontend Applications
 # ============================================================================
 hub42.app {
+  import security_headers
+
   # CRM Portal
   handle /crm* {
     reverse_proxy business-portal:80 {
@@ -50,6 +62,8 @@ hub42.app {
 # api.hub42.app - Integration API Only (Block Internal Endpoints)
 # ============================================================================
 api.hub42.app {
+  import security_headers
+
   # Security: Block any attempt to access internal endpoints
   @internal {
     path /api/internal/*
