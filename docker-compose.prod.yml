@@ -84,6 +84,9 @@ services:
       APP_BASE_URL: ${APP_BASE_URL}
       PORTAL_BASE_URL: ${PORTAL_BASE_URL}
       CORS_ALLOWED_ORIGINS: "https://hub42.app,https://*.hub42.app"
+    labels:
+      app: hub42-backend
+      tier: backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -109,7 +112,7 @@ services:
     container_name: hub42-business-portal
     ports: []
     environment:
-      VITE_API_URL: https://api.hub42.app
+      VITE_API_URL: http://backend:8081/api/internal
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -130,7 +133,7 @@ services:
     container_name: hub42-admin-portal
     ports: []
     environment:
-      VITE_API_URL: https://api.hub42.app
+      VITE_API_URL: http://backend:8081/api/internal
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -151,7 +154,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: hub42-customer-portal
     environment:
-      VITE_API_URL: https://api.hub42.app
+      VITE_API_URL: http://backend:8081/api/internal
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -172,7 +175,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: hub42-landing
     environment:
-      VITE_API_URL: https://api.hub42.app
+      VITE_API_URL: http://backend:8081/api/internal
       VITE_THEME: hybrid
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
@@ -194,7 +197,7 @@ services:
       dockerfile: Dockerfile
     container_name: hub42-scanner
     environment:
-      VITE_API_URL: https://api.hub42.app
+      VITE_API_URL: http://backend:8081/api/internal
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
