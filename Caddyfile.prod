@@ -13,7 +13,6 @@
     level INFO
     format json
   }
-  auto_https off
 }
 
 # ============================================================================
@@ -29,7 +28,7 @@
 # ============================================================================
 # CRM Portal (crm.hub42.app)
 # ============================================================================
-http://crm.hub42.app {
+crm.hub42.app {
   import security_headers
 
   # API requests to backend
@@ -52,7 +51,7 @@ http://crm.hub42.app {
 # ============================================================================
 # Admin Portal (admin.hub42.app)
 # ============================================================================
-http://admin.hub42.app {
+admin.hub42.app {
   import security_headers
 
   # API requests to backend
@@ -75,7 +74,7 @@ http://admin.hub42.app {
 # ============================================================================
 # Customer Portal (customer.hub42.app)
 # ============================================================================
-http://customer.hub42.app {
+customer.hub42.app {
   import security_headers
 
   # API requests to backend
@@ -98,7 +97,7 @@ http://customer.hub42.app {
 # ============================================================================
 # Scanner Portal (scanner.hub42.app)
 # ============================================================================
-http://scanner.hub42.app {
+scanner.hub42.app {
   import security_headers
 
   # API requests to backend
@@ -121,7 +120,7 @@ http://scanner.hub42.app {
 # ============================================================================
 # Landing Page & Root (hub42.app, www.hub42.app)
 # ============================================================================
-http://hub42.app, http://www.hub42.app {
+hub42.app, www.hub42.app {
   import security_headers
 
   # API requests to backend
@@ -144,7 +143,7 @@ http://hub42.app, http://www.hub42.app {
 # ============================================================================
 # api.hub42.app - Integration API Only (Block Internal Endpoints)
 # ============================================================================
-http://api.hub42.app {
+api.hub42.app {
   import security_headers
 
   # Security: Block any attempt to access internal endpoints
