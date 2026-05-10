@@ -32,7 +32,8 @@ crm.hub42.app {
   import security_headers
 
   # API requests to backend
-  handle /api/internal/v1* {
+  @api path /api/*
+  handle @api {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -41,11 +42,9 @@ crm.hub42.app {
   }
 
   # Frontend files (default)
-  handle {
-    reverse_proxy business-portal:80 {
-      header_up X-Forwarded-For {http.request.remote}
-      header_up X-Forwarded-Proto https
-    }
+  reverse_proxy business-portal:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
   }
 }
 
@@ -56,7 +55,8 @@ admin.hub42.app {
   import security_headers
 
   # API requests to backend
-  handle /api/internal/v1/admin* {
+  @api path /api/*
+  handle @api {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -65,11 +65,9 @@ admin.hub42.app {
   }
 
   # Frontend files (default)
-  handle {
-    reverse_proxy admin-portal:80 {
-      header_up X-Forwarded-For {http.request.remote}
-      header_up X-Forwarded-Proto https
-    }
+  reverse_proxy admin-portal:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
   }
 }
 
@@ -80,7 +78,8 @@ customer.hub42.app {
   import security_headers
 
   # API requests to backend
-  handle /api/internal/v1* {
+  @api path /api/*
+  handle @api {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -89,11 +88,9 @@ customer.hub42.app {
   }
 
   # Frontend files (default)
-  handle {
-    reverse_proxy customer-portal:80 {
-      header_up X-Forwarded-For {http.request.remote}
-      header_up X-Forwarded-Proto https
-    }
+  reverse_proxy customer-portal:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
   }
 }
 
@@ -104,7 +101,8 @@ scanner.hub42.app {
   import security_headers
 
   # API requests to backend
-  handle /api/internal/v1* {
+  @api path /api/*
+  handle @api {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -113,11 +111,9 @@ scanner.hub42.app {
   }
 
   # Frontend files (default)
-  handle {
-    reverse_proxy scanner:80 {
-      header_up X-Forwarded-For {http.request.remote}
-      header_up X-Forwarded-Proto https
-    }
+  reverse_proxy scanner:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
   }
 }
 
@@ -128,7 +124,8 @@ hub42.app, www.hub42.app {
   import security_headers
 
   # API requests to backend
-  handle /api/internal/* {
+  @api path /api/*
+  handle @api {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -137,11 +134,9 @@ hub42.app, www.hub42.app {
   }
 
   # Frontend files (default)
-  handle {
-    reverse_proxy landing:80 {
-      header_up X-Forwarded-For {http.request.remote}
-      header_up X-Forwarded-Proto https
-    }
+  reverse_proxy landing:80 {
+    header_up X-Forwarded-For {http.request.remote}
+    header_up X-Forwarded-Proto https
   }
 }
 
