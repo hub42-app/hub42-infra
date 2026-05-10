@@ -111,10 +111,10 @@ services:
     build:
       context: ../crm
       dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: /api
     container_name: hub42-business-portal
     ports: []
-    environment:
-      VITE_API_URL: /api
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -132,10 +132,10 @@ services:
     build:
       context: ../admin
       dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: /api
     container_name: hub42-admin-portal
     ports: []
-    environment:
-      VITE_API_URL: /api
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -154,9 +154,9 @@ services:
     build:
       context: ../customer
       dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: /api
     container_name: hub42-customer-portal
-    environment:
-      VITE_API_URL: /api
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -175,10 +175,10 @@ services:
     build:
       context: ../landing
       dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: /api
+        VITE_THEME: hybrid
     container_name: hub42-landing
-    environment:
-      VITE_API_URL: /api
-      VITE_THEME: hybrid
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
@@ -197,9 +197,9 @@ services:
     build:
       context: ../scanner
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
     container_name: hub42-scanner
-    environment:
-      VITE_API_URL: /api
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/index.html"]
       interval: 30s
