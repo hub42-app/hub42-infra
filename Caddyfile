@@ -31,9 +31,8 @@
 crm.hub42.app {
   import security_headers
 
-  # API requests to backend (rewrite /api/v1/* to /api/internal/v1/*)
-  handle /api/v1* {
-    rewrite /api/v1/* /api/internal/v1{path}
+  # API requests to backend
+  handle /api/internal/v1* {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -56,9 +55,8 @@ crm.hub42.app {
 admin.hub42.app {
   import security_headers
 
-  # API requests to backend (rewrite /api/v1/admin/* to /api/internal/v1/admin/*)
-  handle /api/v1/admin* {
-    rewrite /api/v1/admin/* /api/internal/v1/admin{path}
+  # API requests to backend
+  handle /api/internal/v1/admin* {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -81,9 +79,8 @@ admin.hub42.app {
 customer.hub42.app {
   import security_headers
 
-  # API requests to backend (rewrite /api/v1/* to /api/internal/v1/*)
-  handle /api/v1* {
-    rewrite /api/v1/* /api/internal/v1{path}
+  # API requests to backend
+  handle /api/internal/v1* {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -106,9 +103,8 @@ customer.hub42.app {
 scanner.hub42.app {
   import security_headers
 
-  # API requests to backend (rewrite /api/v1/* to /api/internal/v1/*)
-  handle /api/v1* {
-    rewrite /api/v1/* /api/internal/v1{path}
+  # API requests to backend
+  handle /api/internal/v1* {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -131,9 +127,8 @@ scanner.hub42.app {
 hub42.app, www.hub42.app {
   import security_headers
 
-  # API requests to backend (rewrite /api/* to /api/internal/*)
-  handle /api/* {
-    rewrite /api/* /api/internal{path}
+  # API requests to backend
+  handle /api/internal/* {
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
