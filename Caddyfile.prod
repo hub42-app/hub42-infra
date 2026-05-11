@@ -13,11 +13,6 @@
     level INFO
     format json
   }
-
-  # Use self-signed certificates for local testing
-  # In production, remove this and configure proper ACME settings
-  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
-  local_certs
 }
 
 # ============================================================================
