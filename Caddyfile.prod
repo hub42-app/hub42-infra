@@ -13,6 +13,11 @@
     level INFO
     format json
   }
+
+  # Use self-signed certificates for local testing
+  # In production, remove this and configure proper ACME settings
+  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+  local_certs
 }
 
 # ============================================================================
@@ -31,9 +36,10 @@
 crm.hub42.app {
   import security_headers
 
-  # API requests to backend
-  @api path /api/*
+  # API requests to backend (with path rewriting)
+  @api path /v1/* /iam/* /auth/* /crm/* /billing/* /portal/*
   handle @api {
+    rewrite * /api/internal{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -54,9 +60,10 @@ crm.hub42.app {
 admin.hub42.app {
   import security_headers
 
-  # API requests to backend
-  @api path /api/*
+  # API requests to backend (with path rewriting)
+  @api path /admin/* /v1/admin/*
   handle @api {
+    rewrite * /api/internal{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -77,9 +84,21 @@ admin.hub42.app {
 customer.hub42.app {
   import security_headers
 
-  # API requests to backend
-  @api path /api/*
-  handle @api {
+  # Internal API requests to backend (with path rewriting)
+  @internal_api path /v1/* /portal/*
+  handle @internal_api {
+    rewrite * /api/internal{path}
+    reverse_proxy backend:8081 {
+      header_up X-Forwarded-For {http.request.remote}
+      header_up X-Forwarded-Proto https
+      header_up X-Forwarded-Host {http.request.host}
+    }
+  }
+
+  # Integration API requests to backend (with path rewriting)
+  @integration path /integration/*
+  handle @integration {
+    rewrite * /api{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -100,9 +119,10 @@ customer.hub42.app {
 scanner.hub42.app {
   import security_headers
 
-  # API requests to backend
-  @api path /api/*
+  # API requests to backend (with path rewriting)
+  @api path /v1/*
   handle @api {
+    rewrite * /api/internal{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
@@ -123,9 +143,10 @@ scanner.hub42.app {
 hub42.app, www.hub42.app {
   import security_headers
 
-  # API requests to backend
-  @api path /api/*
-  handle @api {
+  # Integration API requests to backend (with path rewriting)
+  @integration path /integration/*
+  handle @integration {
+    rewrite * /api{path}
     reverse_proxy backend:8081 {
       header_up X-Forwarded-For {http.request.remote}
       header_up X-Forwarded-Proto https
